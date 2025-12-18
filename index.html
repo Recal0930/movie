@@ -12,7 +12,7 @@
             font-family: 'Arial', sans-serif;
         }
         body {
-            background-color: #1a1a1a;
+            background-color: #1a1a1a; /* 恢复纯色背景 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -44,8 +44,6 @@
             width: 100%;
             height: 100%;
             border: none;
-            /* 沙箱属性限制iframe权限，防止跳出 */
-            sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-navigation";
         }
         .title-suffix {
             color: #00aaff;
@@ -86,7 +84,7 @@
     <div class="verify-container">
         <div class="title-suffix">（1天版）</div>
         <h1 class="main-title">开启观影之旅</h1>
-        <div class="expire-tip">（有效期：中午12:00-次日13:00）</div>
+        <div class="expire-tip">（有效期：中午12：00-次日13：00）</div>
         <button class="btn enter-btn">进入</button>
     </div>
 
@@ -95,7 +93,7 @@
     </div>
 
     <script>
-        const TARGET_URL = "https://www.ppnix.com/cn/";
+        const TARGET_URL = "https://www.ppnix.com/cn/"; // 更换后的电影网站
 
         const [verifyContainer, movieContainer, movieIframe, enterBtn] = [
             document.querySelector('.verify-container'),
@@ -110,46 +108,17 @@
             movieIframe.src = TARGET_URL;
         });
 
-        // 核心：拦截iframe内的链接跳转，强制在iframe内打开
-        function interceptIframeLinks() {
-            try {
-                const iframeDoc = movieIframe.contentDocument || movieIframe.contentWindow.document;
-                const allLinks = iframeDoc.querySelectorAll('a');
-                
-                allLinks.forEach(link => {
-                    // 移除_target="_top"/"_blank"，强制在iframe内打开
-                    link.removeAttribute('target');
-                    link.setAttribute('target', '_self');
-                    
-                    // 阻止链接跳出iframe的默认行为
-                    link.addEventListener('click', e => {
-                        const href = link.getAttribute('href');
-                        if (href && !href.startsWith('javascript:')) {
-                            e.preventDefault();
-                            movieIframe.src = href;
-                        }
-                    });
-                });
-            } catch (err) {
-                // 跨域时部分操作受限，不影响核心功能
-            }
-        }
-
-        // iframe加载完成后执行拦截
+        // 防复制
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('selectstart', e => e.preventDefault());
+        document.addEventListener('copy', e => e.preventDefault());
         movieIframe.addEventListener('load', () => {
-            interceptIframeLinks();
-            // 防复制
             try {
                 const iframeDoc = movieIframe.contentDocument || movieIframe.contentWindow.document;
                 iframeDoc.addEventListener('contextmenu', e => e.preventDefault());
                 iframeDoc.addEventListener('selectstart', e => e.preventDefault());
             } catch (err) {}
         });
-
-        // 页面级防复制
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('selectstart', e => e.preventDefault());
-        document.addEventListener('copy', e => e.preventDefault());
     </script>
 </body>
 </html>
